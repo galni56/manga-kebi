@@ -10,7 +10,7 @@ export function buildOrderMessage(
   deliverySettings: DeliverySettings,
   options: { paidOnline?: boolean } = {},
 ) {
-  const { subtotal, delivery, total } = calcTotals(o.items, productById, deliverySettings);
+  const { subtotal, packaging, delivery, total } = calcTotals(o.items, productById, deliverySettings);
   const lines = o.items.map((it) => {
     const p = productById.get(it.id)!;
     return `• ${esc(p.name)} × ${it.qty} — ${p.price * it.qty} грн`;
@@ -21,6 +21,7 @@ export function buildOrderMessage(
     ...lines,
     "",
     `Страви: ${subtotal} грн`,
+    ...(packaging > 0 ? [`Упаковка: ${packaging} грн`] : []),
     `Доставка: ${delivery} грн`,
     `<b>Разом: ${total} грн</b>`,
     options.paidOnline ? "💳 <b>Оплачено онлайн</b>" : `Оплата: ${paymentLabels[o.payment]}`,

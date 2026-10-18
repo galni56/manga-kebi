@@ -62,9 +62,12 @@ export function validateOrder(o: OrderPayload, productById: Map<string, Product>
   return null;
 }
 
-/** Вартість доставки: з Google Таблиці (рядок категорії "Налаштування"), інакше — з config.ts. */
-export type DeliverySettings = { fee: number };
-export const defaultDelivery: DeliverySettings = { fee: cafe.deliveryFee };
+/** Доставка й упаковка: з Google Таблиці (рядки категорії "Налаштування"), інакше — з config.ts. */
+export type DeliverySettings = { fee: number; packagingPerItem: number };
+export const defaultDelivery: DeliverySettings = { fee: cafe.deliveryFee, packagingPerItem: cafe.packagingFee };
+
+// Напої йдуть у своїй тарі — за упаковку не платять.
+const NO_PACKAGING_CATEGORIES = new Set(["drinks"]);
 
 /** Сума рахується з меню на сервері, ціни з браузера не довіряємо. */
 export function calcTotals(
@@ -73,6 +76,11 @@ export function calcTotals(
   deliverySettings: DeliverySettings = defaultDelivery,
 ) {
   const subtotal = items.reduce((s, it) => s + (productById.get(it.id)?.price ?? 0) * it.qty, 0);
+  const packagedQty = items.reduce((s, it) => {
+    const p = productById.get(it.id);
+    return p && !NO_PACKAGING_CATEGORIES.has(p.category) ? s + it.qty : s;
+  }, 0);
+  const packaging = packagedQty * deliverySettings.packagingPerItem;
   const delivery = deliverySettings.fee;
-  return { subtotal, delivery, total: subtotal + delivery };
+  return { subtotal, packaging, delivery, total: subtotal + packaging + delivery };
 }

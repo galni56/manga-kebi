@@ -114,8 +114,9 @@ function parseProducts(rows: string[][]): Product[] {
   return products;
 }
 
-// Вартість доставки — звичайний рядок у тій самій таблиці меню:
+// Доставка й упаковка — звичайні рядки в тій самій таблиці меню:
 //   Категорія = "Налаштування", Назва = "Доставка", Ціна (грн) = 60
+//   Категорія = "Налаштування", Назва = "Упаковка", Ціна (грн) = 10  (за порцію, крім напоїв)
 // parseProducts такі рядки пропускає (категорії "Налаштування" в меню немає).
 // Рядка немає або число некоректне — береться значення з config.ts.
 function parseDelivery(rows: string[][]): DeliverySettings {
@@ -134,6 +135,7 @@ function parseDelivery(rows: string[][]): DeliverySettings {
     const value = Number((r[iValue] ?? "").replace(",", ".").trim());
     if (!Number.isFinite(value) || value < 0 || (r[iValue] ?? "").trim() === "") continue;
     if (name === "доставка") result.fee = value;
+    else if (name === "упаковка") result.packagingPerItem = value;
   }
   return result;
 }

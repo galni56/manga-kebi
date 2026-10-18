@@ -19,6 +19,7 @@ export default async function DeliveryPage() {
           <ul className="list-disc space-y-1 pl-5">
             <li>Мінімальне замовлення — {cafe.minOrder} грн</li>
             <li>Доставка — {delivery.fee} грн</li>
+            {delivery.packagingPerItem > 0 && <li>Упаковка — {delivery.packagingPerItem} грн за кожну порцію (крім напоїв)</li>}
             <li>Орієнтовний час доставки — {cafe.deliveryTimeLabel}</li>
             <li>
               Приймаємо замовлення щодня {workingHoursLabel}

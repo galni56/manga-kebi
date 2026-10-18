@@ -26,7 +26,7 @@ export default function CheckoutPage() {
   }, [street, knownStreets]);
 
   const items = Object.entries(lines).map(([id, qty]) => ({ id, qty }));
-  const { delivery, total: grandTotal } = calcTotals(items, productById, deliverySettings);
+  const { packaging, delivery, total: grandTotal } = calcTotals(items, productById, deliverySettings);
   const belowMin = total < cafe.minOrder;
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -187,6 +187,9 @@ export default function CheckoutPage() {
             </ul>
             <div className="space-y-1 border-t border-line pt-3 text-dim">
               <div className="flex justify-between"><span>Страви</span><span>{formatPrice(total)}</span></div>
+              {packaging > 0 && (
+                <div className="flex justify-between"><span>Упаковка</span><span>{formatPrice(packaging)}</span></div>
+              )}
               <div className="flex justify-between">
                 <span>Доставка · {cafe.deliveryTimeLabel}</span>
                 <span>{delivery === 0 ? "безкоштовно" : formatPrice(delivery)}</span>
