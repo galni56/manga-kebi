@@ -27,6 +27,9 @@ export function buildCheckout(params: {
     result_url: params.resultUrl,
     server_url: params.serverUrl,
     language: "uk",
+    // Способи оплати на сторінці LiqPay. Apple Pay показується лише на пристроях Apple,
+    // Google Pay — в Chrome/Android; картка й Приват24 — для всіх інших.
+    paytypes: "apay,gpay,card,privat24",
   };
   const data = Buffer.from(JSON.stringify(payload), "utf8").toString("base64");
   const signature = sign(params.privateKey, data);
@@ -50,5 +53,12 @@ export function verifyCallback(privateKey: string, data: string, signature: stri
   }
 }
 
-// "success" — звичайна оплата, "sandbox" — тестова (той самий сенс, бо ключі sandbox_*).
-export const PAID_STATUSES = new Set(["success", "sandbox"]);
+// Статуси: https://www.liqpay.ua/uk/doc/api/callback
+// "success" — звичайна оплата, "sandbox" — тестова (ключі sandbox_*).
+// "wait_accept" / "wait_compensation" — гроші з клієнта вже списані (зарахування
+// магазину відкладене), тож замовлення треба готувати.
+export const PAID_STATUSES = new Set(["success", "sandbox", "wait_accept", "wait_compensation"]);
+
+// Остаточна невдача. Усі інші статуси (processing, 3ds_verify, wait_secure, ...) —
+// проміжні: після них LiqPay ще надішле фінальний callback, тож нічого не міняємо.
+export const FAILED_STATUSES = new Set(["failure", "error", "reversed"]);

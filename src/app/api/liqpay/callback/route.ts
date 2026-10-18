@@ -1,5 +1,5 @@
 import { getMenu } from "@/lib/menu-source";
-import { PAID_STATUSES, verifyCallback } from "@/lib/liqpay";
+import { FAILED_STATUSES, PAID_STATUSES, verifyCallback } from "@/lib/liqpay";
 import { claimPendingPayment, markPaymentFailed } from "@/lib/orders-db";
 import { buildOrderMessage, sendOrderToTelegram } from "@/lib/telegram";
 
@@ -21,9 +21,15 @@ export async function POST(request: Request) {
 
   const orderNumber = callback.order_id;
 
-  if (!PAID_STATUSES.has(callback.status)) {
+  if (FAILED_STATUSES.has(callback.status)) {
     console.log(`LiqPay: замовлення №${orderNumber} не оплачено (status=${callback.status})`);
     markPaymentFailed(orderNumber);
+    return new Response("ok");
+  }
+
+  if (!PAID_STATUSES.has(callback.status)) {
+    // Проміжний статус — чекаємо наступного callback з фінальним.
+    console.log(`LiqPay: замовлення №${orderNumber} в процесі (status=${callback.status})`);
     return new Response("ok");
   }
 

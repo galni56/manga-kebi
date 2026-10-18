@@ -89,12 +89,13 @@ export function savePendingPayment(
 export type PendingOrder = { orderNumber: string; payload: OrderPayload };
 
 /** Викликається з LiqPay-вебхука. Повертає збережений payload лише якщо замовлення
- * ще не оброблене (захист від повторної відправки того самого вебхука в Telegram). */
+ * ще не оброблене (захист від повторної відправки того самого вебхука в Telegram).
+ * payment_failed теж підходить: клієнт міг повторити оплату на сторінці LiqPay. */
 export function claimPendingPayment(orderNumber: string): PendingOrder | null {
   return withDb((db) => {
-    const row = db.prepare("SELECT payload_json FROM orders WHERE order_number = ? AND status = 'pending_payment'").get(orderNumber) as
-      | { payload_json: string }
-      | undefined;
+    const row = db
+      .prepare("SELECT payload_json FROM orders WHERE order_number = ? AND status IN ('pending_payment', 'payment_failed')")
+      .get(orderNumber) as { payload_json: string } | undefined;
     if (!row) return null;
     db.prepare("UPDATE orders SET status = 'placed' WHERE order_number = ?").run(orderNumber);
     return { orderNumber, payload: JSON.parse(row.payload_json) as OrderPayload };
