@@ -29,6 +29,12 @@ function withDb<T>(fn: (db: InstanceType<typeof DatabaseSync>) => T): T {
   const db = new DatabaseSync(DB_PATH);
   try {
     db.exec(SCHEMA);
+    // CREATE TABLE IF NOT EXISTS не додає нових колонок у вже існуючу таблицю
+    // (стару базу могли створити telegram-worker / daily-report без payload_json).
+    const columns = db.prepare("PRAGMA table_info(orders)").all() as { name: string }[];
+    if (!columns.some((c) => c.name === "payload_json")) {
+      db.exec("ALTER TABLE orders ADD COLUMN payload_json TEXT");
+    }
     return fn(db);
   } finally {
     db.close();
