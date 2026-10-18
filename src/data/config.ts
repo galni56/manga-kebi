@@ -15,15 +15,12 @@ export const cafe = {
   // Показується на картці страви, якщо в Google Таблиці "В наявності" = ні, а свій коментар не вписали.
   defaultUnavailableNote: "Немає в наявності. Уже їдемо за продуктами!",
   minOrder: 200, // TODO: мінімальне замовлення, грн
+  // Запасне значення: основне береться з Google Таблиці (рядок категорії "Налаштування",
+  // дивись src/lib/menu-source.ts), якщо його там вписали.
   deliveryFee: 60,
-  freeDeliveryFrom: 500,
   deliveryTimeLabel: "30–45 хв",
   // Доставка тільки по ЖК: клієнт вибирає вулицю зі списку.
-  streets: [
-    "вул. Валерія Лобановського",
-    "вул. Друга (заглушка)",
-    "вул. Третя (заглушка)",
-  ], // TODO: решта реальних вулиць/будинків ЖК
+  streets: ["вул. Валерія Лобановського"],
 } as const;
 
 export const workingHoursLabel = `${String(cafe.hours.open).padStart(2, "0")}:00 – ${String(cafe.hours.close).padStart(2, "0")}:00`;

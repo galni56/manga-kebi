@@ -62,9 +62,17 @@ export function validateOrder(o: OrderPayload, productById: Map<string, Product>
   return null;
 }
 
+/** Вартість доставки: з Google Таблиці (рядок категорії "Налаштування"), інакше — з config.ts. */
+export type DeliverySettings = { fee: number };
+export const defaultDelivery: DeliverySettings = { fee: cafe.deliveryFee };
+
 /** Сума рахується з меню на сервері, ціни з браузера не довіряємо. */
-export function calcTotals(items: OrderPayload["items"], productById: Map<string, Product>) {
+export function calcTotals(
+  items: OrderPayload["items"],
+  productById: Map<string, Product>,
+  deliverySettings: DeliverySettings = defaultDelivery,
+) {
   const subtotal = items.reduce((s, it) => s + (productById.get(it.id)?.price ?? 0) * it.qty, 0);
-  const delivery = subtotal >= cafe.freeDeliveryFrom ? 0 : cafe.deliveryFee;
+  const delivery = deliverySettings.fee;
   return { subtotal, delivery, total: subtotal + delivery };
 }

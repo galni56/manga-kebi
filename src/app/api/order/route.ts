@@ -34,7 +34,7 @@ export async function POST(request: Request) {
   }
 
   // Актуальне меню (з Google Таблиці, якщо підключена) — ціни й наявність з браузера не довіряємо.
-  const { products } = await getMenu();
+  const { products, delivery } = await getMenu();
   const productById = new Map(products.map((p) => [p.id, p]));
 
   const error = validateOrder(payload, productById);
@@ -44,14 +44,14 @@ export async function POST(request: Request) {
     return Response.json({ error: `Зараз ми зачинені. Працюємо з ${cafe.hours.open}:00 до ${cafe.hours.close}:00` }, { status: 409 });
   }
 
-  const { subtotal } = calcTotals(payload.items, productById);
+  const { subtotal } = calcTotals(payload.items, productById, delivery);
   if (subtotal < cafe.minOrder) {
     return Response.json({ error: `Мінімальне замовлення — ${cafe.minOrder} грн` }, { status: 400 });
   }
 
   const orderNumber = Date.now().toString().slice(-6);
   try {
-    await sendOrderToTelegram(buildOrderMessage(payload, orderNumber, productById), orderNumber);
+    await sendOrderToTelegram(buildOrderMessage(payload, orderNumber, productById, delivery), orderNumber);
   } catch (e) {
     console.error("Не вдалося доставити замовлення в Telegram", e);
     // Клієнту не кажемо «успіх», якщо кухня замовлення не отримала.
@@ -61,7 +61,7 @@ export async function POST(request: Request) {
   // Для щоденної аналітики (scripts/daily-report.mjs). Збій запису в базу не має
   // ламати відповідь клієнту — замовлення на кухню вже пішло успішно.
   try {
-    saveOrder(orderNumber, payload, productById, calcTotals(payload.items, productById));
+    saveOrder(orderNumber, payload, productById, calcTotals(payload.items, productById, delivery));
   } catch (e) {
     console.error("Не вдалося зберегти замовлення для аналітики", e);
   }

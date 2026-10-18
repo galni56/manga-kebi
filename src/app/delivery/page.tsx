@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { cafe, mangalCutoffLabel, workingHoursLabel } from "@/data/config";
+import { getMenu } from "@/lib/menu-source";
 
 export const metadata = { title: "Доставка та оплата — Мангал і Казан" };
 
-export default function DeliveryPage() {
+export default async function DeliveryPage() {
+  const { delivery } = await getMenu();
   return (
     <div className="container-x max-w-3xl py-12">
       <h1 className="mb-8 font-display text-4xl font-semibold">Доставка та оплата</h1>
@@ -16,7 +18,7 @@ export default function DeliveryPage() {
           <h2 className="mb-2 font-display text-2xl font-semibold text-ink">Умови</h2>
           <ul className="list-disc space-y-1 pl-5">
             <li>Мінімальне замовлення — {cafe.minOrder} грн</li>
-            <li>Доставка — {cafe.deliveryFee} грн, безкоштовно від {cafe.freeDeliveryFrom} грн</li>
+            <li>Доставка — {delivery.fee} грн</li>
             <li>Орієнтовний час доставки — {cafe.deliveryTimeLabel}</li>
             <li>
               Приймаємо замовлення щодня {workingHoursLabel}

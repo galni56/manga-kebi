@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useSyncExternalStore } from "react";
 import { productById as staticProductById, type Product } from "@/data/menu";
+import { defaultDelivery, type DeliverySettings } from "@/lib/order";
 
 type Lines = Record<string, number>;
 
@@ -69,7 +70,8 @@ const clear = () => commit({});
 
 // Живі ціни з Google Таблиці (через /api/menu) — вантажимо один раз на клієнті,
 // поки не прийшли — показуємо вбудоване меню, щоб цифри не стрибали з нуля.
-let menuProducts: Product[] | null = null;
+type MenuData = { products: Product[]; delivery: DeliverySettings };
+let menuData: MenuData | null = null;
 let menuFetchStarted = false;
 const menuListeners = new Set<() => void>();
 
@@ -78,8 +80,8 @@ function ensureMenuLoaded() {
   menuFetchStarted = true;
   fetch("/api/menu")
     .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
-    .then((data: { products: Product[] }) => {
-      menuProducts = data.products;
+    .then((data: MenuData) => {
+      menuData = { products: data.products, delivery: data.delivery ?? defaultDelivery };
       menuListeners.forEach((l) => l());
     })
     .catch(() => {
@@ -92,20 +94,21 @@ function subscribeMenu(listener: () => void) {
   return () => menuListeners.delete(listener);
 }
 
-function getMenuSnapshot(): Product[] | null {
-  return menuProducts;
+function getMenuSnapshot(): MenuData | null {
+  return menuData;
 }
 
-/** products/productById — живі, якщо /api/menu вже відповів, інакше — вбудоване меню. */
+/** products/productById/delivery — живі, якщо /api/menu вже відповів, інакше — вбудоване меню й config.ts. */
 export function useMenuProducts() {
   const live = useSyncExternalStore(subscribeMenu, getMenuSnapshot, () => null);
   useEffect(() => {
     ensureMenuLoaded();
   }, []);
-  const products = live ?? STATIC_PRODUCTS;
+  const products = live?.products ?? STATIC_PRODUCTS;
+  const delivery = live?.delivery ?? defaultDelivery;
   return useMemo(
-    () => ({ products, productById: new Map(products.map((p) => [p.id, p])), ready: live !== null }),
-    [products, live],
+    () => ({ products, productById: new Map(products.map((p) => [p.id, p])), delivery, ready: live !== null }),
+    [products, delivery, live],
   );
 }
 

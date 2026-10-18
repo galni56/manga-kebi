@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { categories, products as fallbackProducts, type Product } from "@/data/menu";
+import { defaultDelivery, type DeliverySettings } from "@/lib/order";
 
 // Джерело меню для сайту. Якщо задано MENU_SHEET_CSV_URL (посилання на CSV-експорт
 // опублікованої Google Таблиці) — тягнемо ціни/наявність звідти, з кешем на 2 хвилини.
@@ -113,18 +114,46 @@ function parseProducts(rows: string[][]): Product[] {
   return products;
 }
 
-export const getMenu = cache(async (): Promise<{ products: Product[]; categories: typeof categories }> => {
+// Вартість доставки — звичайний рядок у тій самій таблиці меню:
+//   Категорія = "Налаштування", Назва = "Доставка", Ціна (грн) = 60
+// parseProducts такі рядки пропускає (категорії "Налаштування" в меню немає).
+// Рядка немає або число некоректне — береться значення з config.ts.
+function parseDelivery(rows: string[][]): DeliverySettings {
+  const [header, ...data] = rows;
+  const result = { ...defaultDelivery };
+  if (!header) return result;
+  const idx = (name: string) => header.findIndex((h) => h.trim().toLowerCase() === name.toLowerCase());
+  const iCategory = idx("Категорія");
+  const iName = idx("Назва");
+  const iValue = idx("Ціна (грн)");
+  if (iCategory < 0 || iName < 0 || iValue < 0) return result;
+
+  for (const r of data) {
+    if ((r[iCategory] ?? "").trim().toLowerCase() !== "налаштування") continue;
+    const name = (r[iName] ?? "").trim().toLowerCase();
+    const value = Number((r[iValue] ?? "").replace(",", ".").trim());
+    if (!Number.isFinite(value) || value < 0 || (r[iValue] ?? "").trim() === "") continue;
+    if (name === "доставка") result.fee = value;
+  }
+  return result;
+}
+
+type Menu = { products: Product[]; categories: typeof categories; delivery: DeliverySettings };
+
+export const getMenu = cache(async (): Promise<Menu> => {
+  const fallback: Menu = { products: fallbackProducts, categories, delivery: defaultDelivery };
   const url = process.env.MENU_SHEET_CSV_URL;
-  if (!url) return { products: fallbackProducts, categories };
+  if (!url) return fallback;
 
   try {
     const res = await fetch(url, { next: { revalidate: 120 } });
     if (!res.ok) throw new Error(`Google Sheets CSV: ${res.status}`);
-    const products = parseProducts(parseCsv(await res.text()));
+    const rows = parseCsv(await res.text());
+    const products = parseProducts(rows);
     if (products.length === 0) throw new Error("Порожній або нерозпізнаний CSV");
-    return { products, categories };
+    return { products, categories, delivery: parseDelivery(rows) };
   } catch (e) {
     console.error("Не вдалося завантажити меню з Google Таблиці, показую вбудоване меню", e);
-    return { products: fallbackProducts, categories };
+    return fallback;
   }
 });

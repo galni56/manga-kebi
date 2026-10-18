@@ -12,7 +12,7 @@ import { ClosedBanner, useIsOpen } from "@/components/OpenStatus";
 export default function CheckoutPage() {
   const router = useRouter();
   const { lines, total, setQty, clear } = useCart();
-  const { productById } = useMenuProducts();
+  const { productById, delivery: deliverySettings } = useMenuProducts();
   const isOpen = useIsOpen();
   const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
@@ -26,9 +26,8 @@ export default function CheckoutPage() {
   }, [street, knownStreets]);
 
   const items = Object.entries(lines).map(([id, qty]) => ({ id, qty }));
-  const { delivery, total: grandTotal } = calcTotals(items, productById);
+  const { delivery, total: grandTotal } = calcTotals(items, productById, deliverySettings);
   const belowMin = total < cafe.minOrder;
-  const toFreeDelivery = cafe.freeDeliveryFrom - total;
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -197,11 +196,6 @@ export default function CheckoutPage() {
             {belowMin && (
               <p className="text-xs text-brand">
                 Мінімальне замовлення — {cafe.minOrder} грн. Додайте ще на {cafe.minOrder - total} грн.
-              </p>
-            )}
-            {!belowMin && toFreeDelivery > 0 && (
-              <p className="text-xs text-dim">
-                Додайте ще на {toFreeDelivery} грн — і доставка буде безкоштовною.
               </p>
             )}
             {isOpen === false && (

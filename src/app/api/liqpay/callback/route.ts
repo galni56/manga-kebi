@@ -41,11 +41,11 @@ export async function POST(request: Request) {
     return new Response("ok");
   }
 
-  const { products } = await getMenu();
+  const { products, delivery } = await getMenu();
   const productById = new Map(products.map((p) => [p.id, p]));
 
   try {
-    await sendOrderToTelegram(buildOrderMessage(pending.payload, orderNumber, productById, { paidOnline: true }), orderNumber);
+    await sendOrderToTelegram(buildOrderMessage(pending.payload, orderNumber, productById, delivery, { paidOnline: true }), orderNumber);
   } catch (e) {
     console.error(`Не вдалося надіслати оплачене замовлення №${orderNumber} в Telegram`, e);
     // Клієнт уже оплатив — гроші не пропадуть (запис у базі вже позначено як

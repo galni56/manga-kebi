@@ -34,7 +34,7 @@ export async function POST(request: Request) {
     items: Array.isArray(body.items) ? body.items.map((i) => ({ id: String(i.id), qty: Number(i.qty) })) : [],
   };
 
-  const { products } = await getMenu();
+  const { products, delivery } = await getMenu();
   const productById = new Map(products.map((p) => [p.id, p]));
 
   const error = validateOrder(payload, productById);
@@ -44,7 +44,7 @@ export async function POST(request: Request) {
     return Response.json({ error: `Зараз ми зачинені. Працюємо з ${cafe.hours.open}:00 до ${cafe.hours.close}:00` }, { status: 409 });
   }
 
-  const totals = calcTotals(payload.items, productById);
+  const totals = calcTotals(payload.items, productById, delivery);
   if (totals.subtotal < cafe.minOrder) {
     return Response.json({ error: `Мінімальне замовлення — ${cafe.minOrder} грн` }, { status: 400 });
   }

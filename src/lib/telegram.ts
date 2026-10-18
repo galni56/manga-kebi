@@ -1,5 +1,5 @@
 import type { Product } from "@/data/menu";
-import { calcTotals, paymentLabels, toTelHref, type OrderPayload } from "@/lib/order";
+import { calcTotals, paymentLabels, toTelHref, type DeliverySettings, type OrderPayload } from "@/lib/order";
 
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
@@ -7,9 +7,10 @@ export function buildOrderMessage(
   o: OrderPayload,
   orderNumber: string,
   productById: Map<string, Product>,
+  deliverySettings: DeliverySettings,
   options: { paidOnline?: boolean } = {},
 ) {
-  const { subtotal, delivery, total } = calcTotals(o.items, productById);
+  const { subtotal, delivery, total } = calcTotals(o.items, productById, deliverySettings);
   const lines = o.items.map((it) => {
     const p = productById.get(it.id)!;
     return `• ${esc(p.name)} × ${it.qty} — ${p.price * it.qty} грн`;
