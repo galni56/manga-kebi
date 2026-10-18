@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { cafe, mangalCutoffLabel, workingHoursLabel } from "@/data/config";
+import { cafe, deliveryHoursLabel, mangalCutoffLabel, workingHoursLabel } from "@/data/config";
 import { getMenu } from "@/lib/menu-source";
 
 export const metadata = { title: "Доставка та оплата — Мангал і Казан" };
@@ -22,7 +22,7 @@ export default async function DeliveryPage() {
             {delivery.packagingPerItem > 0 && <li>Упаковка — {delivery.packagingPerItem} грн за кожну порцію (крім напоїв)</li>}
             <li>Орієнтовний час доставки — {cafe.deliveryTimeLabel}</li>
             <li>
-              Приймаємо замовлення щодня {workingHoursLabel}
+              Приймаємо замовлення на доставку щодня {deliveryHoursLabel} (кафе працює {workingHoursLabel})
               {cafe.mangalCutoff.enabled && `, гриль (шашлик, люля-кебаб) — до ${mangalCutoffLabel}`}
             </li>
           </ul>

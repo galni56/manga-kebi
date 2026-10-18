@@ -7,7 +7,10 @@ export const cafe = {
   // TODO: підтвердити написання вулиці — "Лабановського" в оригіналі, тут виправлено на поширений варіант "Лобановського".
   address: "ЖК «Чайки», вул. Валерія Лобановського, 35, корпус 9",
   timezone: "Europe/Kyiv",
+  // Години доставки — тільки в цей час сайт приймає замовлення.
   hours: { open: 10, close: 20 },
+  // Години роботи самого кафе (показуються на сайті, на прийом замовлень не впливають).
+  cafeHours: { open: 10, close: 22 },
   // Гриль (шашлик, люля-кебаб) готують тільки до цього часу, решта меню — до закриття.
   // enabled: false — перевірка й попередження вимкнені, але весь код лишається:
   // поставте true, коли знову знадобиться обмежувати гриль окремим часом.
@@ -25,5 +28,11 @@ export const cafe = {
   streets: ["вул. Валерія Лобановського"],
 } as const;
 
-export const workingHoursLabel = `${String(cafe.hours.open).padStart(2, "0")}:00 – ${String(cafe.hours.close).padStart(2, "0")}:00`;
+const hh = (h: number) => `${String(h).padStart(2, "0")}:00`;
+/** Графік кафе, напр. "10:00 – 22:00". */
+export const workingHoursLabel = `${hh(cafe.cafeHours.open)} – ${hh(cafe.cafeHours.close)}`;
+/** Години доставки (прийому замовлень на сайті), напр. "10:00 – 20:00". */
+export const deliveryHoursLabel = `${hh(cafe.hours.open)} – ${hh(cafe.hours.close)}`;
+/** Коротко для шапки: "до 20:00". */
+export const deliveryUntilLabel = `до ${hh(cafe.hours.close)}`;
 export const mangalCutoffLabel = `${String(cafe.mangalCutoff.hour).padStart(2, "0")}:${String(cafe.mangalCutoff.minute).padStart(2, "0")}`;

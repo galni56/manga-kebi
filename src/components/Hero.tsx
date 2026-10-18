@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { cafe, workingHoursLabel } from "@/data/config";
+import { cafe, deliveryUntilLabel, workingHoursLabel } from "@/data/config";
 import { categories } from "@/data/menu";
 
 export function Hero() {
@@ -27,7 +27,7 @@ export function Hero() {
               >
                 Дивитись меню
               </a>
-              <span className="text-sm text-dim">Щодня {workingHoursLabel}</span>
+              <span className="text-sm text-dim">Щодня {workingHoursLabel}, доставка {deliveryUntilLabel}</span>
             </div>
           </div>
 

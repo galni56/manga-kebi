@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { cafe } from "@/data/config";
+import { deliveryHoursLabel } from "@/data/config";
 import { isMangalAvailable, isOpenNow } from "@/lib/hours";
 
 export function useIsOpen() {
@@ -32,7 +32,7 @@ export function ClosedBanner() {
   if (open !== false) return null;
   return (
     <div className="border-b border-brand/40 bg-warm py-3 text-center text-sm">
-      Зараз ми зачинені. Приймаємо замовлення з {cafe.hours.open}:00 до {cafe.hours.close}:00.
+      Доставка зараз не працює. Приймаємо замовлення щодня з {deliveryHoursLabel}.
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { cafe } from "@/data/config";
+import { cafe, deliveryHoursLabel } from "@/data/config";
 import { isOpenNow } from "@/lib/hours";
 import { getMenu } from "@/lib/menu-source";
 import { calcTotals, validateOrder, type OrderPayload } from "@/lib/order";
@@ -41,7 +41,7 @@ export async function POST(request: Request) {
   if (error) return Response.json({ error }, { status: 400 });
 
   if (!isOpenNow()) {
-    return Response.json({ error: `Зараз ми зачинені. Працюємо з ${cafe.hours.open}:00 до ${cafe.hours.close}:00` }, { status: 409 });
+    return Response.json({ error: `Доставка зараз не працює. Приймаємо замовлення щодня з ${deliveryHoursLabel}` }, { status: 409 });
   }
 
   const { subtotal } = calcTotals(payload.items, productById, delivery);

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
-import { cafe } from "@/data/config";
+import { cafe, deliveryHoursLabel } from "@/data/config";
 import { useCart, useMenuProducts } from "@/lib/cart";
 import { formatPrice } from "@/lib/hours";
 import { calcTotals, paymentLabels, validateOrder, type OrderPayload, type PaymentMethod } from "@/lib/order";
@@ -203,7 +203,7 @@ export default function CheckoutPage() {
             )}
             {isOpen === false && (
               <p className="rounded-lg bg-warm p-3 text-xs text-brand">
-                Зараз ми зачинені. Кнопка стане активною з {cafe.hours.open}:00 до {cafe.hours.close}:00.
+                Доставка зараз не працює. Кнопка стане активною з {deliveryHoursLabel}.
               </p>
             )}
             {error && <p role="alert" className="rounded-lg bg-warm p-3 text-sm text-brand">{error}</p>}

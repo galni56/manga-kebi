@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { cafe, workingHoursLabel } from "@/data/config";
+import { cafe, deliveryHoursLabel, workingHoursLabel } from "@/data/config";
 import { Ornament } from "./SectionTitle";
 
 export function Footer() {
@@ -27,6 +27,7 @@ export function Footer() {
               <li>{cafe.address}</li>
               <li><a href={cafe.phoneHref} className="hover:text-gold">{cafe.phone}</a></li>
               <li>Щодня {workingHoursLabel}</li>
+              <li>Доставка {deliveryHoursLabel}</li>
             </ul>
           </div>
           <div>
