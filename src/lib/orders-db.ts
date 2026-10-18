@@ -102,6 +102,14 @@ export function claimPendingPayment(orderNumber: string): PendingOrder | null {
   });
 }
 
+/** Для сторінки /order/success: статус замовлення або null, якщо такого немає. */
+export function getOrderStatus(orderNumber: string): string | null {
+  return withDb((db) => {
+    const row = db.prepare("SELECT status FROM orders WHERE order_number = ?").get(orderNumber) as { status: string } | undefined;
+    return row?.status ?? null;
+  });
+}
+
 export function markPaymentFailed(orderNumber: string) {
   withDb((db) => {
     db.prepare("UPDATE orders SET status = 'payment_failed' WHERE order_number = ? AND status = 'pending_payment'").run(orderNumber);
