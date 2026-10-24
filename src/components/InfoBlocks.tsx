@@ -18,7 +18,7 @@ export function DeliveryInfo() {
           </div>
           <h3 className="mt-5 font-display text-2xl font-semibold">Доставка по {cafe.place}</h3>
           <p className="mt-3 text-dim">
-            Доставляємо тільки по території ЖК, зазвичай за {cafe.deliveryTimeLabel}. Оплата онлайн або готівкою кур&apos;єру.
+            Доставляємо до під&apos;їзду по території ЖК, зазвичай за {cafe.deliveryTimeLabel}. Оплата онлайн або готівкою кур&apos;єру.
           </p>
           <Link href="/delivery" className="mt-5 inline-block text-sm font-semibold text-brand hover:underline">
             Детальніше →

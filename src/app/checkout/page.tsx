@@ -191,7 +191,7 @@ export default function CheckoutPage() {
                 <div className="flex justify-between"><span>Упаковка</span><span>{formatPrice(packaging)}</span></div>
               )}
               <div className="flex justify-between">
-                <span>Доставка · {cafe.deliveryTimeLabel}</span>
+                <span>Доставка до під&apos;їзду · {cafe.deliveryTimeLabel}</span>
                 <span>{delivery === 0 ? "безкоштовно" : formatPrice(delivery)}</span>
               </div>
               <div className="flex justify-between text-lg font-bold text-ink"><span>Разом</span><span>{formatPrice(grandTotal)}</span></div>
